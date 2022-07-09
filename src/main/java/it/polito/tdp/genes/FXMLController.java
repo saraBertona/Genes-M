@@ -5,7 +5,11 @@
 package it.polito.tdp.genes;
 
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.ResourceBundle;
+
+import org.jgrapht.graph.DefaultWeightedEdge;
 
 import it.polito.tdp.genes.model.Model;
 import javafx.event.ActionEvent;
@@ -39,11 +43,52 @@ public class FXMLController {
     @FXML
     void doContaArchi(ActionEvent event) {
 
+    	txtResult.clear();
+    	Double soglia;
+    	
+    	this.model.creaGrafo();
+		txtResult.appendText("Numero vertici : "+this.model.getGrafo().vertexSet().size()+"\n");
+		txtResult.appendText("Numero archi : "+this.model.getGrafo().edgeSet().size()+"\n");
+        txtResult.appendText("Peso minimo = "+this.model.getPesoMinimo()+", peso massimo = "+this.model.getPesoMassimo()+"\n");
+    	
+    	if(!txtSoglia.getText().equals("")) {
+    		
+    		try {
+        		soglia = Double.parseDouble(txtSoglia.getText());
+        		txtResult.appendText("Numero di archi il sui peso Ã¨ sopra la soglia indicata : "+this.model.getNumArchiSopraSoglia(soglia).size()+"\n");
+        		txtResult.appendText("Numero di archi il cui peso Ã¨ sotto la soglia indicata : "+(this.model.getGrafo().edgeSet().size()-this.model.getNumArchiSopraSoglia(soglia).size()));
+        		
+        		
+        	}catch(NumberFormatException e) {
+        		txtResult.setText("Il valore soglia deve essere un numero");
+        		e.printStackTrace();
+        	}
+    	}
+    	
+    	
     }
 
     @FXML
     void doRicerca(ActionEvent event) {
 
+    	txtResult.clear();
+    	double soglia;
+    	try {
+    		soglia = Double.parseDouble(txtSoglia.getText());
+    		List<Integer> cammino = this.model.visitaGrafo(soglia);
+    		List<DefaultWeightedEdge> archi = new LinkedList<DefaultWeightedEdge>();
+    		for(int i=0; i<cammino.size()-1;i++) {
+    			archi.add(i,this.model.getEdge(cammino.get(i), cammino.get(i+1)));
+    		}
+    		txtResult.appendText(cammino.toString()+"\n");
+    		
+    		for(DefaultWeightedEdge e : archi) {
+    			txtResult.appendText(e+" weight = "+this.model.getWeight(e)+"\n");
+    		}
+   
+    	}catch(NumberFormatException e) {
+    		txtResult.setText("Inserisci un valore soglia numerico");
+    	}
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
